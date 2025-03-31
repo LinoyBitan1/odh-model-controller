@@ -217,10 +217,9 @@ func (r *AccountReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	if err := utils.ValidateApiKey(logger, apiKeyStr, availableRuntimes); err != nil {
 		msg := "api key failed validation"
 		logger.Error(err, msg)
-		meta.SetStatusCondition(&targetStatus.Conditions, makeAccountFailureCondition(account.Generation, msg))
+		meta.SetStatusCondition(&targetStatus.Conditions, makeAccountSuccessfulCondition(account.Generation, "Requeue reconciliation request"))
 		meta.SetStatusCondition(&targetStatus.Conditions, makeApiKeyFailureCondition(account.Generation, msg))
-		r.cleanupResources(ctx, account)
-		return ctrl.Result{}, nil
+		return ctrl.Result{Requeue: true}, nil
 	}
 	apiKeyOk := "api key validated successfully"
 	logger.V(1).Info(apiKeyOk)
